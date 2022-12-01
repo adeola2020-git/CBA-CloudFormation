@@ -1,29 +1,85 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Provisioning of 2 EC2 Instances within aCustom Network via Cloudformation
+Description: Creating IAM Users with appropriate permissions using Cloudformation
 
 Resources:
-  Adminuser:
+
+  ProjectManagerUser:
+    Type: AWS::IAM::User  
+    Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      LoginProfile:
+        Password: !Sub ${AWS::AccountId}Pm$$
+        PasswordResetRequired: true
+      UserName: !Sub ${AWS::StackName}-ProjectManager
+
+  ProjectManagerUserAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref ProjectManagerUser
+
+  DeveloperUser:
+    Type: AWS::IAM::User  
+    Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEC2FullAccess       
+      LoginProfile:
+        Password: !Sub ${AWS::AccountId}Dv&&
+        PasswordResetRequired: true
+      UserName: !Sub ${AWS::StackName}-Developer 
+
+  DeveloperUserAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref DeveloperUser  
+
+  InternUser:
     Type: AWS::IAM::User  
     Properties:
       Policies:
-      - PolicyName: admin-access
+      - PolicyName: list-bucket
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
           - Effect: Allow
-            Action: "*"
-            Resource: "*"
+            Action:
+            - s3:ListBucket
+            Resource: arn:aws:s3:::* 
       LoginProfile:
-        Password: pA$$woRd
-        PasswordResetRequired: true
-      UserName: !Sub ${AWS::StackName}-${AWS::AccountId}
+        Password: !Sub ${AWS::AccountId}It££
+        PasswordResetRequired: true      
+      UserName: !Sub ${AWS::StackName}-Intern
 
-  Outputs:
-    AccessKeyID:
-      Value: !Ref AdminUserAccessKey
-    SecretAccessKey:
-      Value: !GetAtt AdminUserAccessKey.SecretAccessKey
-    User:
-      Value: !Ref AdminUser
-    Password: 
-      Value: pA$$woRd
+
+  InternUserAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref InternUser    
+
+Outputs:
+  PMAccessKeyID:
+    Value: !Ref ProjectManagerUserAccessKey 
+  PMSecretAccessKey:
+    Value: !GetAtt ProjectManagerUserAccessKey.SecretAccessKey
+  PMUser:
+    Value: !Ref ProjectManagerUser
+  PMPassword: 
+    Value: !Sub ${AWS::AccountId}Pm$$
+
+  DevAccessKeyID:
+    Value: !Ref DeveloperUserAccessKey 
+  DevSecretAccessKey:
+    Value: !GetAtt DeveloperUserAccessKey.SecretAccessKey
+  DevUser:
+    Value: !Ref DeveloperUser
+  DevPassword: 
+    Value: !Sub ${AWS::AccountId}Dv&&
+
+  InternAccessKeyID:
+    Value: !Ref InternUserAccessKey 
+  InternSecretAccessKey:
+    Value: !GetAtt InternUserAccessKey.SecretAccessKey
+  InternUser:
+    Value: !Ref InternUser
+  InternPassword: 
+    Value: !Sub ${AWS::AccountId}It££
