@@ -22,7 +22,8 @@ Resources:
     Type: AWS::IAM::User  
     Properties:
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonEC2FullAccess       
+        - arn:aws:iam::aws:policy/AmazonEC2FullAccess
+        - arn:aws:iam::aws:policy/IAMUserChangePassword       
       LoginProfile:
         Password: !Sub ${AWS::AccountId}Dv&&
         PasswordResetRequired: true
@@ -36,6 +37,8 @@ Resources:
   InternUser:
     Type: AWS::IAM::User  
     Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/IAMUserChangePassword
       Policies:
       - PolicyName: list-bucket
         PolicyDocument:
