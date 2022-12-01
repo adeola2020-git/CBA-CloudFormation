@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Provisioning of 2 EC2 Instances within aCustom Network via Cloudformation
+
+Resources:
+  Adminuser:
+    Type: AWS::IAM::User  
+    Properties:
+      Policies:
+      - PolicyName: admin-access
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: "*"
+            Resource: "*"
+      LoginProfile:
+        Password: pA$$woRd
+        PasswordResetRequired: true
+      UserName: !Sub ${AWS::StackName}-${AWS::AccountId}
+
+  Outputs:
+    AccessKeyID:
+      Value: !Ref AdminUserAccessKey
+    SecretAccessKey:
+      Value: !GetAtt AdminUserAccessKey.SecretAccessKey
+    User:
+      Value: !Ref AdminUser
+    Password: 
+      Value: pA$$woRd
